@@ -1,0 +1,20 @@
+{
+  "name": "delux-construction",
+  "version": "1.0.0",
+  "description": "Project schedule and bilingual assignment dispatch for De Lux Construction",
+  "main": "start.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node --no-warnings start.js",
+    "init-db": "node --no-warnings db/init.js",
+    "seed": "node --no-warnings db/seed.js",
+    "test-flow": "node --no-warnings test-flow.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "express-session": "^1.18.0"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}
