@@ -901,12 +901,14 @@ function projectsTab() {
   };
 
   wrap.innerHTML = `
-    <div class="stats">
-      <div class="stat"><div class="stat-label">${t('stat_projects')}</div><div class="stat-value">${state.projects.length}</div></div>
-      <div class="stat"><div class="stat-label">${t('stat_workers')}</div><div class="stat-value">${totalWorkers}</div></div>
-      <div class="stat"><div class="stat-label">${t('stat_subs')}</div><div class="stat-value">${totalSubs}</div></div>
-      <div class="stat"><div class="stat-label">${t('stat_open')}</div><div class="stat-value">${open}</div></div>
-    </div>
+    ${isDispatcher ? `
+      <div class="stats">
+        <div class="stat"><div class="stat-label">${t('stat_projects')}</div><div class="stat-value">${state.projects.length}</div></div>
+        <div class="stat"><div class="stat-label">${t('stat_workers')}</div><div class="stat-value">${totalWorkers}</div></div>
+        <div class="stat"><div class="stat-label">${t('stat_subs')}</div><div class="stat-value">${totalSubs}</div></div>
+        <div class="stat"><div class="stat-label">${t('stat_open')}</div><div class="stat-value">${open}</div></div>
+      </div>
+    ` : ''}
 
     <div style="display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;">
       <button class="tab ${filter==='all'?'active':''}" data-filter="all">${t('all_status')} (${statusCounts.all})</button>

@@ -155,6 +155,18 @@ router.delete('/tasks/:id', requireAuth, requireDispatcher, (req, res) => {
 });
 
 router.get('/people', requireAuth, (req, res) => {
+  const role = req.session.role;
+  const userId = req.session.userId;
+
+  // External users get only themselves — no company directory access
+  if (role === 'external') {
+    const self = db.prepare(`
+      SELECT id, name_en, name_zh, role, trade, profession, preferred_lang, phone, email
+      FROM users WHERE id = ?
+    `).get(userId);
+    return res.json({ subs: [], workers: self ? [self] : [] });
+  }
+
   const subs = db.prepare(`
     SELECT s.id, s.name, s.trade,
       (SELECT name_en FROM users WHERE sub_company_id = s.id AND role='sub_contact' LIMIT 1) AS contact_name,
