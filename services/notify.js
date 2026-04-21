@@ -1,11 +1,38 @@
 // services/notify.js — dispatches assignment notifications via email, SMS, WeChat
 //
-// Dev mode: senders log to console so you can see exactly what each
-// recipient would receive in their preferred language.
-// Production: replace the stub bodies with Nodemailer / Twilio / WeChat Work.
+// Email & WeChat: currently stubbed, logs to console.
+// SMS: real Twilio integration when TWILIO_* env vars are set; falls back to console log otherwise.
 
 const db = require('../db');
 const tpl = require('./templates');
+
+// --- Twilio setup (lazy — only load if env vars are present) ---
+let twilioClient = null;
+const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID;
+const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN;
+const TWILIO_FROM = process.env.TWILIO_FROM_NUMBER;
+
+if (TWILIO_SID && TWILIO_TOKEN && TWILIO_FROM) {
+  try {
+    const twilio = require('twilio');
+    twilioClient = twilio(TWILIO_SID, TWILIO_TOKEN);
+    console.log(`[notify] Twilio enabled · from ${TWILIO_FROM}`);
+  } catch (e) {
+    console.error('[notify] Twilio init failed:', e.message);
+  }
+} else {
+  console.log('[notify] Twilio env vars missing — SMS will log to console only');
+}
+
+// Normalize to E.164 format (+1 for US). Strips dashes, parens, spaces.
+function normalizePhone(raw) {
+  if (!raw) return null;
+  let digits = String(raw).replace(/[^\d+]/g, '');
+  if (digits.startsWith('+')) return digits;
+  if (digits.length === 10) return '+1' + digits;  // US without country code
+  if (digits.length === 11 && digits.startsWith('1')) return '+' + digits;
+  return '+' + digits; // fallback
+}
 
 async function sendEmail({ to, subject, body }) {
   console.log(`\n[EMAIL → ${to}]`);
@@ -16,10 +43,25 @@ async function sendEmail({ to, subject, body }) {
 }
 
 async function sendSms({ to, body }) {
-  console.log(`\n[SMS → ${to}]`);
-  console.log(body);
-  console.log('---');
-  return { ok: true, channel: 'sms' };
+  const normalized = normalizePhone(to);
+  if (!twilioClient) {
+    console.log(`\n[SMS → ${normalized || to}] (stub — Twilio not configured)`);
+    console.log(body);
+    console.log('---');
+    return { ok: true, channel: 'sms', stubbed: true };
+  }
+  try {
+    const msg = await twilioClient.messages.create({
+      body,
+      from: TWILIO_FROM,
+      to: normalized,
+    });
+    console.log(`[SMS → ${normalized}] sent · twilio sid=${msg.sid}`);
+    return { ok: true, channel: 'sms', sid: msg.sid };
+  } catch (e) {
+    console.error(`[SMS → ${normalized}] failed: ${e.message}`);
+    throw e;
+  }
 }
 
 async function sendWechat({ to, body }) {

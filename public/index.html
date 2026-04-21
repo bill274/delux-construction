@@ -754,15 +754,20 @@ async function loadDataForRole() {
     state.events = events;
     state.assignments = await api('/api/assignments');
   } else {
-    const [inbox, people, events] = await Promise.all([
+    const [projects, inbox, people, events] = await Promise.all([
+      api('/api/projects'),
       api('/api/assignments/mine'),
       api('/api/people'),
       api('/api/events'),
     ]);
+    state.projects = projects;
     state.inbox = inbox;
     state.people = people;
     state.events = events;
-    if (state.tab !== 'calendar') state.tab = 'inbox';
+    // External users default to Projects tab. Workers/crew_leads default to Inbox.
+    if (!['projects', 'inbox', 'calendar'].includes(state.tab)) {
+      state.tab = state.user.role === 'external' ? 'projects' : 'inbox';
+    }
   }
 }
 
@@ -856,7 +861,7 @@ function tabs() {
   const isDispatcher = state.user.role === 'dispatcher';
   const tabList = isDispatcher
     ? [['projects', t('tab_projects')], ['schedule', t('tab_schedule')], ['calendar', t('tab_calendar')], ['people', t('tab_people')], ['assign', t('tab_assign')], ['sent', t('tab_sent')], ['manage', t('tab_manage')]]
-    : [['inbox', t('tab_inbox')], ['calendar', t('tab_calendar')]];
+    : [['projects', t('tab_projects')], ['inbox', t('tab_inbox')], ['calendar', t('tab_calendar')]];
 
   const el = document.createElement('div');
   el.className = 'tabs';
