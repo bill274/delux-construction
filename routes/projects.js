@@ -7,6 +7,9 @@ const router = express.Router();
 
 router.get('/projects', requireAuth, (req, res) => {
   const { status } = req.query;
+  const userId = req.session.userId;
+  const role = req.session.role;
+
   let sql = `
     SELECT p.*,
       (SELECT COUNT(*) FROM tasks t WHERE t.project_id = p.id) AS task_count,
@@ -15,10 +18,19 @@ router.get('/projects', requireAuth, (req, res) => {
     FROM projects p
   `;
   const params = [];
+  const conds = [];
+
+  if (role !== 'dispatcher') {
+    // Non-dispatchers only see projects they're assigned to
+    sql += ` JOIN project_assignees pa ON pa.project_id = p.id `;
+    conds.push(`pa.user_id = ?`);
+    params.push(userId);
+  }
   if (status && ['pending', 'active', 'completed'].includes(status)) {
-    sql += ` WHERE p.status = ? `;
+    conds.push(`p.status = ?`);
     params.push(status);
   }
+  if (conds.length) sql += ' WHERE ' + conds.join(' AND ');
   sql += ` ORDER BY
     CASE p.status WHEN 'active' THEN 0 WHEN 'pending' THEN 1 WHEN 'completed' THEN 2 ELSE 3 END,
     p.due_date ASC
@@ -151,10 +163,10 @@ router.get('/people', requireAuth, (req, res) => {
   `).all();
 
   const workers = db.prepare(`
-    SELECT id, name_en, name_zh, role, trade, preferred_lang, phone, email
+    SELECT id, name_en, name_zh, role, trade, profession, preferred_lang, phone, email
     FROM users
     ORDER BY
-      CASE role WHEN 'dispatcher' THEN 0 WHEN 'crew_lead' THEN 1 WHEN 'worker' THEN 2 ELSE 3 END,
+      CASE role WHEN 'dispatcher' THEN 0 WHEN 'crew_lead' THEN 1 WHEN 'worker' THEN 2 WHEN 'external' THEN 3 ELSE 4 END,
       name_en
   `).all();
 

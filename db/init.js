@@ -29,9 +29,10 @@ if (fs.existsSync(dbPath)) {
       password_hash TEXT NOT NULL,
       name_en TEXT NOT NULL,
       name_zh TEXT,
-      role TEXT NOT NULL CHECK (role IN ('dispatcher', 'crew_lead', 'worker', 'sub_contact')),
+      role TEXT NOT NULL CHECK (role IN ('dispatcher', 'crew_lead', 'worker', 'sub_contact', 'external')),
       preferred_lang TEXT NOT NULL DEFAULT 'en' CHECK (preferred_lang IN ('en', 'zh')),
       trade TEXT,
+      profession TEXT,
       sub_company_id INTEGER REFERENCES sub_companies(id),
       reports_to_id INTEGER REFERENCES users(id),
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
@@ -134,6 +135,30 @@ if (fs.existsSync(dbPath)) {
     CREATE INDEX idx_events_start ON events(start_at);
     CREATE INDEX idx_event_part_event ON event_participants(event_id);
     CREATE INDEX idx_event_part_user ON event_participants(user_id);
+
+    CREATE TABLE project_documents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+      category TEXT NOT NULL,
+      trade TEXT,
+      title_en TEXT NOT NULL,
+      title_zh TEXT,
+      dropbox_url TEXT NOT NULL,
+      notes TEXT,
+      added_by INTEGER NOT NULL REFERENCES users(id),
+      added_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE project_assignees (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      UNIQUE(project_id, user_id)
+    );
+
+    CREATE INDEX idx_docs_project ON project_documents(project_id);
+    CREATE INDEX idx_assign_project ON project_assignees(project_id);
+    CREATE INDEX idx_assign_user ON project_assignees(user_id);
   `);
 
   console.log('Database schema initialized at', dbPath);

@@ -8,14 +8,14 @@ const router = express.Router();
 router.post('/users', requireAuth, requireDispatcher, (req, res) => {
   const {
     name_en, name_zh, email, phone, wechat_id,
-    role, preferred_lang, trade, sub_company_id, reports_to_id,
+    role, preferred_lang, trade, profession, sub_company_id, reports_to_id,
     initial_password
   } = req.body;
 
   if (!name_en || !email || !role || !initial_password) {
     return res.status(400).json({ error: 'name_en, email, role, initial_password required' });
   }
-  if (!['dispatcher', 'crew_lead', 'worker', 'sub_contact'].includes(role)) {
+  if (!['dispatcher', 'crew_lead', 'worker', 'sub_contact', 'external'].includes(role)) {
     return res.status(400).json({ error: 'invalid role' });
   }
   if (!['en', 'zh'].includes(preferred_lang || 'en')) {
@@ -29,13 +29,13 @@ router.post('/users', requireAuth, requireDispatcher, (req, res) => {
     const result = db.prepare(`
       INSERT INTO users (
         email, phone, wechat_id, password_hash, name_en, name_zh,
-        role, preferred_lang, trade, sub_company_id, reports_to_id
+        role, preferred_lang, trade, profession, sub_company_id, reports_to_id
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       email, phone || null, wechat_id || null, hash(initial_password),
       name_en, name_zh || null, role, preferred_lang || 'en',
-      trade || null, sub_company_id || null, reports_to_id || null
+      trade || null, profession || null, sub_company_id || null, reports_to_id || null
     );
     res.json({ id: Number(result.lastInsertRowid) });
   } catch (e) {
@@ -47,7 +47,7 @@ router.put('/users/:id', requireAuth, requireDispatcher, (req, res) => {
   const { id } = req.params;
   const {
     name_en, name_zh, email, phone, wechat_id,
-    role, preferred_lang, trade
+    role, preferred_lang, trade, profession
   } = req.body;
 
   const existing = db.prepare('SELECT id FROM users WHERE id = ?').get(Number(id));
@@ -63,12 +63,13 @@ router.put('/users/:id', requireAuth, requireDispatcher, (req, res) => {
         wechat_id = COALESCE(?, wechat_id),
         role = COALESCE(?, role),
         preferred_lang = COALESCE(?, preferred_lang),
-        trade = COALESCE(?, trade)
+        trade = COALESCE(?, trade),
+        profession = COALESCE(?, profession)
       WHERE id = ?
     `).run(
       name_en ?? null, name_zh ?? null, email ?? null,
       phone ?? null, wechat_id ?? null, role ?? null,
-      preferred_lang ?? null, trade ?? null, Number(id)
+      preferred_lang ?? null, trade ?? null, profession ?? null, Number(id)
     );
     res.json({ ok: true });
   } catch (e) {

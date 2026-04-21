@@ -315,6 +315,9 @@ const i18n = {
     role_crew_lead: 'Crew lead',
     role_worker: 'Worker',
     role_sub_contact: 'Sub contact',
+    role_external: 'External (designer/architect/engineer)',
+    profession_label: 'Profession (for external users)',
+    profession_placeholder: 'e.g. Architect, Structural Engineer',
     pref_lang: 'Preferred language',
     initial_pw: 'Temporary password',
     save: 'Save',
@@ -438,6 +441,33 @@ const i18n = {
     next_month: 'Next ›',
     month_names: 'January,February,March,April,May,June,July,August,September,October,November,December',
     dow_short: 'Mon,Tue,Wed,Thu,Fri,Sat,Sun',
+    documents_btn: 'Documents',
+    add_document: 'Add document',
+    edit_document: 'Edit document',
+    no_documents: 'No documents yet.',
+    doc_category: 'Category',
+    doc_title: 'Title',
+    doc_dropbox_url: 'Dropbox URL',
+    doc_trade: 'Trade (for subcontractor filtering, optional)',
+    doc_notes: 'Notes',
+    confirm_delete_doc: 'Delete this document?',
+    open_link: 'Open',
+    doc_added: 'Document added',
+    doc_updated: 'Document updated',
+    doc_deleted: 'Document deleted',
+    cat_design_set: 'Project Design Set',
+    cat_construction_set: 'Construction Set',
+    cat_designer_sketch: 'Designer Sketch',
+    cat_dob_approved: 'DOB Approved Set',
+    cat_permits: 'Permits',
+    cat_inspection: 'Inspection Report',
+    cat_tpp: 'TPP Report',
+    cat_other: 'Other',
+    assignees_btn: 'Team',
+    project_assignees: 'Project team',
+    no_assignees: 'No one assigned.',
+    assign_people: 'Assign team members',
+    assignees_updated: 'Team updated',
   },
   zh: {
     brand_sub: '项目运营',
@@ -498,6 +528,9 @@ const i18n = {
     role_crew_lead: '班组长',
     role_worker: '工人',
     role_sub_contact: '分包商联系人',
+    role_external: '外部合作者(设计师/建筑师/工程师)',
+    profession_label: '专业(仅外部合作者)',
+    profession_placeholder: '例如:建筑师、结构工程师',
     pref_lang: '首选语言',
     initial_pw: '临时密码',
     save: '保存',
@@ -621,6 +654,33 @@ const i18n = {
     next_month: '下月 ›',
     month_names: '1月,2月,3月,4月,5月,6月,7月,8月,9月,10月,11月,12月',
     dow_short: '一,二,三,四,五,六,日',
+    documents_btn: '文件',
+    add_document: '添加文件',
+    edit_document: '编辑文件',
+    no_documents: '暂无文件。',
+    doc_category: '类别',
+    doc_title: '名称',
+    doc_dropbox_url: 'Dropbox 链接',
+    doc_trade: '工种(分包商筛选用,可选)',
+    doc_notes: '备注',
+    confirm_delete_doc: '确定删除该文件?',
+    open_link: '打开',
+    doc_added: '文件添加成功',
+    doc_updated: '文件已更新',
+    doc_deleted: '文件已删除',
+    cat_design_set: '方案设计图',
+    cat_construction_set: '施工图',
+    cat_designer_sketch: '设计师草图',
+    cat_dob_approved: 'DOB 批准图',
+    cat_permits: '许可证',
+    cat_inspection: '检查报告',
+    cat_tpp: 'TPP 报告',
+    cat_other: '其他',
+    assignees_btn: '团队',
+    project_assignees: '项目团队',
+    no_assignees: '未分配人员。',
+    assign_people: '分配团队成员',
+    assignees_updated: '团队已更新',
   }
 };
 
@@ -884,10 +944,17 @@ function projectsTab() {
           <div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
             <button class="btn btn-primary" data-add-task="${p.id}" style="padding: 4px 10px; font-size: 11px;">+ ${t('add_task_btn')}</button>
             <button class="btn" data-view-tasks="${p.id}" style="padding: 4px 10px; font-size: 11px;">${t('view_tasks')}</button>
+            <button class="btn" data-view-docs="${p.id}" style="padding: 4px 10px; font-size: 11px;">📁 ${t('documents_btn')}</button>
+            <button class="btn" data-view-assignees="${p.id}" style="padding: 4px 10px; font-size: 11px;">👥 ${t('assignees_btn')}</button>
             <button class="btn" data-edit-project="${p.id}" style="padding: 4px 10px; font-size: 11px;">${t('edit')}</button>
             <button class="btn" data-del-project="${p.id}" style="padding: 4px 10px; font-size: 11px;">${t('delete')}</button>
           </div>
-        ` : ''}
+        ` : `
+          <div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
+            <button class="btn" data-view-tasks="${p.id}" style="padding: 4px 10px; font-size: 11px;">${t('view_tasks')}</button>
+            <button class="btn" data-view-docs="${p.id}" style="padding: 4px 10px; font-size: 11px;">📁 ${t('documents_btn')}</button>
+          </div>
+        `}
       </div>
       <div style="text-align: right;">
         <div class="muted">${pct}% ${t('complete')}</div>
@@ -935,6 +1002,18 @@ function projectsTab() {
       b.onclick = () => {
         const projectId = Number(b.dataset.viewTasks);
         openProjectTasksDialog(projectId);
+      };
+    });
+    wrap.querySelectorAll('[data-view-docs]').forEach(b => {
+      b.onclick = () => {
+        const projectId = Number(b.dataset.viewDocs);
+        openProjectDocsDialog(projectId);
+      };
+    });
+    wrap.querySelectorAll('[data-view-assignees]').forEach(b => {
+      b.onclick = () => {
+        const projectId = Number(b.dataset.viewAssignees);
+        openAssigneesDialog(projectId);
       };
     });
   }, 0);
@@ -1494,6 +1573,7 @@ function openUserDialog(existing) {
         <option value="crew_lead">${t('role_crew_lead')}</option>
         <option value="worker">${t('role_worker')}</option>
         <option value="sub_contact">${t('role_sub_contact')}</option>
+        <option value="external">${t('role_external')}</option>
       </select>
       <label class="field" style="margin-top: 12px;">${t('pref_lang')}</label>
       <select id="u-lang">
@@ -1502,6 +1582,19 @@ function openUserDialog(existing) {
       </select>
       <label class="field" style="margin-top: 12px;">${t('trade_label') || 'Trade'}</label>
       <input id="u-trade" type="text" list="trade-options" value="${existing?.trade || ''}" placeholder="e.g. Carpentry, Drywall" />
+      <label class="field" style="margin-top: 12px;">${t('profession_label')}</label>
+      <input id="u-profession" type="text" list="profession-options" value="${existing?.profession || ''}" placeholder="${t('profession_placeholder')}" />
+      <datalist id="profession-options">
+        <option value="Architect"></option>
+        <option value="Designer"></option>
+        <option value="Structural Engineer"></option>
+        <option value="MEP Engineer"></option>
+        <option value="Civil Engineer"></option>
+        <option value="Interior Designer"></option>
+        <option value="Landscape Architect"></option>
+        <option value="Expeditor"></option>
+        <option value="Building Inspector"></option>
+      </datalist>
       ${!isEdit ? `
         <label class="field" style="margin-top: 12px;">${t('initial_pw')} *</label>
         <input id="u-pw" type="text" value="delux2026" />
@@ -1526,6 +1619,7 @@ function openUserDialog(existing) {
         role: m.querySelector('#u-role').value,
         preferred_lang: m.querySelector('#u-lang').value,
         trade: m.querySelector('#u-trade').value.trim() || null,
+        profession: m.querySelector('#u-profession')?.value.trim() || null,
       };
       if (!isEdit) body.initial_password = m.querySelector('#u-pw').value;
       try {
@@ -2275,6 +2369,223 @@ function openEventDialog(existing, dateHint) {
         close();
         await loadDataForRole();
         render();
+      } catch (e) { alert(e.message); }
+    };
+  });
+}
+
+// --------------------------- Project documents dialog --------------------
+async function openProjectDocsDialog(projectId) {
+  const project = state.projects.find(p => p.id === projectId);
+  const projectName = project
+    ? ((state.lang === 'zh' && project.name_zh) ? project.name_zh : project.name_en)
+    : '';
+  const isDispatcher = state.user.role === 'dispatcher';
+
+  let docs;
+  try {
+    docs = await api(`/api/projects/${projectId}/documents`);
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+
+  openModal((m, close) => {
+    m.style.maxWidth = '640px';
+
+    const docsHtml = docs.length === 0
+      ? `<div class="muted" style="text-align: center; padding: 1.5rem;">${t('no_documents')}</div>`
+      : docs.map(d => {
+          const title = (state.lang === 'zh' && d.title_zh) ? d.title_zh : d.title_en;
+          const catLabel = t('cat_' + d.category);
+          return `
+            <div class="doc-item ${d.category}" style="background: var(--surface); border: 0.5px solid var(--border); border-left: 3px solid; border-radius: 6px; padding: 10px 12px; margin-bottom: 6px; display: flex; gap: 10px; align-items: start;">
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 500; font-size: 13px; margin-bottom: 3px;">${title}</div>
+                <div class="muted" style="font-size: 11px;">
+                  <span class="badge info" style="font-size: 10px;">${catLabel}</span>
+                  ${d.trade ? ` · ${d.trade}` : ''}
+                  · ${d.added_by_name || ''}
+                </div>
+                ${d.notes ? `<div style="font-size: 11px; margin-top: 4px; color: var(--text-muted);">${d.notes}</div>` : ''}
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <a href="${d.dropbox_url}" target="_blank" rel="noopener" class="btn btn-primary" style="padding: 4px 10px; font-size: 11px; text-decoration: none; text-align: center;">${t('open_link')}</a>
+                ${isDispatcher ? `
+                  <button class="btn" data-edit-doc="${d.id}" style="padding: 4px 10px; font-size: 11px;">${t('edit')}</button>
+                  <button class="btn" data-del-doc="${d.id}" style="padding: 4px 10px; font-size: 11px;">${t('delete')}</button>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+    m.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="margin: 0;">📁 ${t('documents_btn')} — ${projectName}</h3>
+        ${isDispatcher ? `<button class="btn btn-primary" id="doc-add" style="padding: 6px 12px; font-size: 12px;">+ ${t('add_document')}</button>` : ''}
+      </div>
+      <div id="doc-list" style="max-height: 60vh; overflow-y: auto;">${docsHtml}</div>
+      <div style="display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end;">
+        <button class="btn" id="doc-close">${t('cancel')}</button>
+      </div>
+    `;
+
+    // Color the border-left based on category using inline styles
+    m.querySelectorAll('.doc-item').forEach(el => {
+      const c = el.className.split(' ')[1];
+      const colors = {
+        design_set: '#1D9E75', construction_set: '#378ADD', designer_sketch: '#8561F9',
+        dob_approved: '#BA7517', permits: '#E24B4A', inspection: '#B88D1C',
+        tpp: '#5F5E5A', other: '#888'
+      };
+      if (colors[c]) el.style.borderLeftColor = colors[c];
+    });
+
+    m.querySelector('#doc-close').onclick = close;
+    const addBtn = m.querySelector('#doc-add');
+    if (addBtn) addBtn.onclick = () => { close(); openDocDialog(projectId, null); };
+    m.querySelectorAll('[data-edit-doc]').forEach(b => {
+      b.onclick = () => {
+        const id = Number(b.dataset.editDoc);
+        const doc = docs.find(d => d.id === id);
+        close();
+        openDocDialog(projectId, doc);
+      };
+    });
+    m.querySelectorAll('[data-del-doc]').forEach(b => {
+      b.onclick = async () => {
+        if (!confirm(t('confirm_delete_doc'))) return;
+        try {
+          await api(`/api/documents/${b.dataset.delDoc}`, { method: 'DELETE' });
+          showToast(t('doc_deleted'));
+          close();
+          openProjectDocsDialog(projectId);
+        } catch (e) { alert(e.message); }
+      };
+    });
+  });
+}
+
+function openDocDialog(projectId, existing) {
+  openModal((m, close) => {
+    const isEdit = !!existing;
+    m.style.maxWidth = '500px';
+    m.innerHTML = `
+      <h3 style="margin: 0 0 16px;">${isEdit ? t('edit_document') : t('add_document')}</h3>
+      <label class="field">${t('doc_category')} *</label>
+      <select id="doc-cat">
+        <option value="design_set">${t('cat_design_set')}</option>
+        <option value="construction_set">${t('cat_construction_set')}</option>
+        <option value="designer_sketch">${t('cat_designer_sketch')}</option>
+        <option value="dob_approved">${t('cat_dob_approved')}</option>
+        <option value="permits">${t('cat_permits')}</option>
+        <option value="inspection">${t('cat_inspection')}</option>
+        <option value="tpp">${t('cat_tpp')}</option>
+        <option value="other">${t('cat_other')}</option>
+      </select>
+
+      <label class="field" style="margin-top: 12px;">${t('doc_title')} (English) *</label>
+      <input id="doc-title-en" type="text" value="${existing?.title_en || ''}" placeholder="e.g. Electrical drawings - 131 Mercer" />
+
+      <label class="field" style="margin-top: 12px;">${t('doc_title')} (中文)</label>
+      <input id="doc-title-zh" type="text" value="${existing?.title_zh || ''}" placeholder="例:131 Mercer 电气图" />
+
+      <label class="field" style="margin-top: 12px;">${t('doc_dropbox_url')} *</label>
+      <input id="doc-url" type="url" value="${existing?.dropbox_url || ''}" placeholder="https://www.dropbox.com/scl/..." />
+
+      <label class="field" style="margin-top: 12px;">${t('doc_trade')}</label>
+      <input id="doc-trade" type="text" list="trade-options" value="${existing?.trade || ''}" placeholder="e.g. Electrical (leave blank = visible to all subs)" />
+
+      <label class="field" style="margin-top: 12px;">${t('doc_notes')}</label>
+      <textarea id="doc-notes" rows="2">${existing?.notes || ''}</textarea>
+
+      <div style="display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end;">
+        <button class="btn" id="doc-cancel">${t('cancel')}</button>
+        <button class="btn btn-primary" id="doc-save">${t('save')}</button>
+      </div>
+    `;
+    if (existing) m.querySelector('#doc-cat').value = existing.category;
+    m.querySelector('#doc-cancel').onclick = () => { close(); openProjectDocsDialog(projectId); };
+    m.querySelector('#doc-save').onclick = async () => {
+      const body = {
+        category: m.querySelector('#doc-cat').value,
+        title_en: m.querySelector('#doc-title-en').value.trim(),
+        title_zh: m.querySelector('#doc-title-zh').value.trim() || null,
+        dropbox_url: m.querySelector('#doc-url').value.trim(),
+        trade: m.querySelector('#doc-trade').value.trim() || null,
+        notes: m.querySelector('#doc-notes').value.trim() || null,
+      };
+      if (!body.title_en) { alert(t('doc_title') + ' (English) required'); return; }
+      if (!body.dropbox_url) { alert(t('doc_dropbox_url') + ' required'); return; }
+      try {
+        if (isEdit) {
+          await api(`/api/documents/${existing.id}`, { method: 'PUT', body });
+          showToast(t('doc_updated'));
+        } else {
+          await api(`/api/projects/${projectId}/documents`, { method: 'POST', body });
+          showToast(t('doc_added'));
+        }
+        close();
+        openProjectDocsDialog(projectId);
+      } catch (e) { alert(e.message); }
+    };
+  });
+}
+
+// --------------------------- Project assignees dialog --------------------
+async function openAssigneesDialog(projectId) {
+  const project = state.projects.find(p => p.id === projectId);
+  const projectName = project
+    ? ((state.lang === 'zh' && project.name_zh) ? project.name_zh : project.name_en)
+    : '';
+  let current;
+  try {
+    current = await api(`/api/projects/${projectId}/assignees`);
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+  const currentIds = new Set(current.map(u => u.id));
+
+  openModal((m, close) => {
+    m.style.maxWidth = '500px';
+
+    // All candidate users: workers, crew leads, sub_contacts, dispatchers
+    const candidates = state.people.workers.filter(u => u.role !== 'dispatcher' || currentIds.has(u.id));
+
+    const listHtml = candidates.length === 0
+      ? `<div class="muted" style="padding: 1rem; text-align: center;">No users available.</div>`
+      : candidates.map(u => {
+          const name = (state.lang === 'zh' && u.name_zh) ? u.name_zh : u.name_en;
+          const checked = currentIds.has(u.id) ? 'checked' : '';
+          const roleLabel = u.role === 'crew_lead' ? '班组长' : u.role === 'sub_contact' ? '分包商' : u.role === 'worker' ? '工人' : u.role;
+          return `
+            <label style="display: flex; align-items: center; gap: 8px; padding: 6px 8px; font-size: 13px; border-bottom: 0.5px solid var(--border);">
+              <input type="checkbox" name="pa-user" value="${u.id}" ${checked} />
+              <span style="flex: 1;">${name} <span class="muted" style="font-size: 10px;">(${roleLabel}${u.trade ? ' · ' + u.trade : ''})</span></span>
+            </label>
+          `;
+        }).join('');
+
+    m.innerHTML = `
+      <h3 style="margin: 0 0 16px;">👥 ${t('assign_people')} — ${projectName}</h3>
+      <div style="max-height: 60vh; overflow-y: auto; background: var(--background); border-radius: 6px; padding: 4px 0;">
+        ${listHtml}
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end;">
+        <button class="btn" id="pa-cancel">${t('cancel')}</button>
+        <button class="btn btn-primary" id="pa-save">${t('save')}</button>
+      </div>
+    `;
+
+    m.querySelector('#pa-cancel').onclick = close;
+    m.querySelector('#pa-save').onclick = async () => {
+      const ids = Array.from(m.querySelectorAll('input[name="pa-user"]:checked')).map(i => Number(i.value));
+      try {
+        await api(`/api/projects/${projectId}/assignees`, { method: 'PUT', body: { user_ids: ids } });
+        showToast(t('assignees_updated'));
+        close();
       } catch (e) { alert(e.message); }
     };
   });

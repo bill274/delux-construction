@@ -8,6 +8,7 @@ const projectsRouter = require('./routes/projects');
 const assignmentsRouter = require('./routes/assignments');
 const usersRouter = require('./routes/users');
 const eventsRouter = require('./routes/events');
+const documentsRouter = require('./routes/documents');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,6 +28,7 @@ app.use('/api', projectsRouter);
 app.use('/api', assignmentsRouter);
 app.use('/api', usersRouter);
 app.use('/api', eventsRouter);
+app.use('/api', documentsRouter);
 
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
 
