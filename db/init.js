@@ -73,6 +73,8 @@ if (fs.existsSync(dbPath)) {
       start_date TEXT NOT NULL,
       due_date TEXT NOT NULL,
       require_ack INTEGER DEFAULT 0,
+      status TEXT DEFAULT 'active' CHECK (status IN ('active', 'cancelled')),
+      cancelled_at TEXT,
       created_by INTEGER NOT NULL REFERENCES users(id),
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
@@ -93,8 +95,8 @@ if (fs.existsSync(dbPath)) {
 
     CREATE TABLE message_log (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      assignment_id INTEGER NOT NULL REFERENCES assignments(id),
-      recipient_id INTEGER NOT NULL REFERENCES assignment_recipients(id),
+      assignment_id INTEGER NOT NULL REFERENCES assignments(id) ON DELETE CASCADE,
+      recipient_id INTEGER NOT NULL REFERENCES assignment_recipients(id) ON DELETE CASCADE,
       channel TEXT NOT NULL,
       lang TEXT NOT NULL,
       status TEXT NOT NULL,
@@ -105,6 +107,33 @@ if (fs.existsSync(dbPath)) {
     CREATE INDEX idx_tasks_project ON tasks(project_id);
     CREATE INDEX idx_recipients_assignment ON assignment_recipients(assignment_id);
     CREATE INDEX idx_recipients_user ON assignment_recipients(user_id);
+
+    CREATE TABLE events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL,
+      title_en TEXT NOT NULL,
+      title_zh TEXT,
+      start_at TEXT NOT NULL,
+      end_at TEXT,
+      all_day INTEGER DEFAULT 0,
+      location TEXT,
+      notes_en TEXT,
+      notes_zh TEXT,
+      project_id INTEGER REFERENCES projects(id) ON DELETE SET NULL,
+      created_by INTEGER NOT NULL REFERENCES users(id),
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE event_participants (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      event_id INTEGER NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      UNIQUE(event_id, user_id)
+    );
+
+    CREATE INDEX idx_events_start ON events(start_at);
+    CREATE INDEX idx_event_part_event ON event_participants(event_id);
+    CREATE INDEX idx_event_part_user ON event_participants(user_id);
   `);
 
   console.log('Database schema initialized at', dbPath);

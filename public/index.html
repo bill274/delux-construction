@@ -171,6 +171,73 @@
   .inbox-item.accepted { border-left: 2px solid var(--success-text); }
   .inbox-item.declined { border-left: 2px solid var(--danger-text); }
 
+  /* Calendar */
+  .cal-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .cal-toolbar .title-wrap { flex: 1; min-width: 180px; font-size: 16px; font-weight: 500; }
+  .cal-view-toggle { display: inline-flex; gap: 2px; background: var(--background); border: 0.5px solid var(--border); border-radius: 6px; padding: 2px; }
+  .cal-view-toggle button {
+    padding: 4px 10px; border: none; background: transparent;
+    border-radius: 4px; font-size: 12px; cursor: pointer; color: var(--text-muted);
+  }
+  .cal-view-toggle button.active { background: var(--surface); color: var(--text); font-weight: 500; }
+
+  .cal-header-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--border); border-radius: 6px 6px 0 0; overflow: hidden; }
+  .cal-dow { background: var(--background); padding: 6px 0; text-align: center; font-size: 11px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--border); overflow: hidden; border-radius: 0 0 6px 6px; }
+  .cal-day {
+    background: var(--surface); min-height: 90px; padding: 4px 6px;
+    display: flex; flex-direction: column; gap: 2px; cursor: pointer;
+    transition: background 0.1s;
+  }
+  .cal-day:hover { background: var(--background); }
+  .cal-day.other-month { background: var(--background); opacity: 0.5; }
+  .cal-day.today { background: #FEF3DD; }
+  .cal-day.today .day-num { color: #7A4A00; font-weight: 700; }
+  .day-num { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+  .cal-event {
+    font-size: 10px; padding: 2px 5px; border-radius: 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    border-left: 2px solid;
+    cursor: pointer;
+  }
+  .cal-event.client_meeting { background: #E1F5EE; border-color: #1D9E75; color: #04342C; }
+  .cal-event.designer_meeting { background: #F2E0F9; border-color: #8561F9; color: #2A0F53; }
+  .cal-event.team_meeting { background: #DAEEFC; border-color: #378ADD; color: #042C53; }
+  .cal-event.quote_request { background: #FAEEDA; border-color: #BA7517; color: #412402; }
+  .cal-event.inspection { background: #FCEBEB; border-color: #E24B4A; color: #501313; }
+  .cal-event.other { background: var(--background); border-color: #888; color: var(--text); }
+
+  .cal-event-more { font-size: 10px; color: var(--text-muted); padding: 1px 5px; }
+
+  .cal-list-item {
+    background: var(--surface); border: 0.5px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; margin-bottom: 6px; display: flex; gap: 10px; align-items: start;
+    border-left: 3px solid;
+    cursor: pointer;
+  }
+  .cal-list-item.client_meeting { border-left-color: #1D9E75; }
+  .cal-list-item.designer_meeting { border-left-color: #8561F9; }
+  .cal-list-item.team_meeting { border-left-color: #378ADD; }
+  .cal-list-item.quote_request { border-left-color: #BA7517; }
+  .cal-list-item.inspection { border-left-color: #E24B4A; }
+  .cal-list-item.other { border-left-color: #888; }
+
+  .cal-list-date {
+    min-width: 64px; text-align: center; padding: 4px;
+    background: var(--background); border-radius: 4px;
+  }
+  .cal-list-day { font-size: 18px; font-weight: 500; line-height: 1; }
+  .cal-list-month { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+  .cal-list-content { flex: 1; min-width: 0; }
+  .cal-list-title { font-weight: 500; font-size: 14px; margin-bottom: 3px; }
+  .cal-list-meta { font-size: 11px; color: var(--text-muted); }
+
+  @media (max-width: 720px) {
+    .cal-day { min-height: 60px; padding: 2px 3px; }
+    .cal-event { font-size: 9px; padding: 1px 3px; }
+    .cal-dow { font-size: 10px; }
+  }
+
   @media (max-width: 720px) {
     .stats { grid-template-columns: repeat(2, 1fr); }
     .gantt-row { grid-template-columns: 140px 1fr; }
@@ -302,6 +369,75 @@ const i18n = {
     task_added: 'Task added',
     task_updated: 'Task updated',
     task_deleted: 'Task deleted',
+    tab_sent: 'Sent',
+    assignment_cancelled: 'Cancelled',
+    cancel_assignment: 'Cancel',
+    delete_assignment: 'Delete',
+    edit_assignment: 'Edit',
+    confirm_cancel_assignment: 'Cancel this assignment? A cancellation notice will be sent to all recipients.',
+    confirm_delete_assignment: 'Permanently delete this assignment? This cannot be undone and recipients will not be notified.',
+    assignment_cancelled_ok: 'Assignment cancelled and notices sent',
+    assignment_deleted_ok: 'Assignment deleted',
+    assignment_updated_ok: 'Assignment updated',
+    no_sent_assignments: 'No assignments sent yet.',
+    sent_to: 'Sent to',
+    recipients_count: 'recipients',
+    accepted_count: 'accepted',
+    declined_count: 'declined',
+    select_trade: 'Select trade',
+    trade_other: 'Other (type custom)',
+    trade_custom_placeholder: 'Enter custom trade name',
+    trade_framing: 'Framing',
+    trade_concrete: 'Concrete',
+    trade_masonry: 'Masonry',
+    trade_roofing: 'Roofing',
+    trade_drywall: 'Drywall',
+    trade_painting: 'Painting',
+    trade_electrical: 'Electrical',
+    trade_plumbing: 'Plumbing',
+    trade_hvac: 'HVAC',
+    trade_flooring: 'Flooring',
+    trade_tile: 'Tile & stone',
+    trade_windows: 'Windows & doors',
+    trade_cabinetry: 'Cabinetry & millwork',
+    trade_insulation: 'Insulation',
+    trade_demolition: 'Demolition',
+    trade_excavation: 'Excavation',
+    trade_landscaping: 'Landscaping',
+    trade_cleanup: 'Site cleanup',
+    trade_general: 'General labor',
+    tab_calendar: 'Calendar',
+    view_month: 'Month',
+    view_list: 'List',
+    add_event: 'Add event',
+    edit_event: 'Edit event',
+    delete_event: 'Delete event',
+    confirm_delete_event: 'Delete this event?',
+    event_type: 'Event type',
+    event_type_client_meeting: 'Client meeting',
+    event_type_designer_meeting: 'Designer meeting',
+    event_type_team_meeting: 'Team meeting',
+    event_type_quote_request: 'Quote request',
+    event_type_inspection: 'Inspection',
+    event_type_other: 'Other',
+    event_title_en: 'Title (English)',
+    event_title_zh: 'Title (Chinese)',
+    event_start: 'Start',
+    event_end: 'End',
+    event_all_day: 'All day',
+    event_location: 'Location',
+    event_notes: 'Notes',
+    event_project: 'Related project (optional)',
+    event_participants: 'Participants (leave blank = visible to all)',
+    no_events_today: 'No events on this day.',
+    today: 'Today',
+    event_added: 'Event added',
+    event_updated: 'Event updated',
+    event_deleted: 'Event deleted',
+    prev_month: '‹ Prev',
+    next_month: 'Next ›',
+    month_names: 'January,February,March,April,May,June,July,August,September,October,November,December',
+    dow_short: 'Mon,Tue,Wed,Thu,Fri,Sat,Sun',
   },
   zh: {
     brand_sub: '项目运营',
@@ -416,6 +552,75 @@ const i18n = {
     task_added: '任务添加成功',
     task_updated: '任务已更新',
     task_deleted: '任务已删除',
+    tab_sent: '已派发',
+    assignment_cancelled: '已取消',
+    cancel_assignment: '取消派发',
+    delete_assignment: '删除',
+    edit_assignment: '编辑',
+    confirm_cancel_assignment: '取消该派发?将向所有收件人发送取消通知。',
+    confirm_delete_assignment: '永久删除该派发?此操作不可恢复,收件人不会收到通知。',
+    assignment_cancelled_ok: '派发已取消,通知已发送',
+    assignment_deleted_ok: '派发已删除',
+    assignment_updated_ok: '派发已更新',
+    no_sent_assignments: '暂无派发记录。',
+    sent_to: '已派发给',
+    recipients_count: '收件人',
+    accepted_count: '已接受',
+    declined_count: '已拒绝',
+    select_trade: '选择工种',
+    trade_other: '其他(自定义)',
+    trade_custom_placeholder: '输入自定义工种名称',
+    trade_framing: '木工/框架',
+    trade_concrete: '混凝土',
+    trade_masonry: '砌砖/石工',
+    trade_roofing: '屋顶',
+    trade_drywall: '石膏板',
+    trade_painting: '油漆',
+    trade_electrical: '电工',
+    trade_plumbing: '水管',
+    trade_hvac: '暖通空调',
+    trade_flooring: '地板',
+    trade_tile: '瓷砖/石材',
+    trade_windows: '门窗',
+    trade_cabinetry: '橱柜/定制木工',
+    trade_insulation: '保温隔热',
+    trade_demolition: '拆除',
+    trade_excavation: '土方/挖掘',
+    trade_landscaping: '园艺',
+    trade_cleanup: '现场清理',
+    trade_general: '普工',
+    tab_calendar: '日历',
+    view_month: '月视图',
+    view_list: '列表',
+    add_event: '添加事件',
+    edit_event: '编辑事件',
+    delete_event: '删除事件',
+    confirm_delete_event: '确定删除该事件?',
+    event_type: '事件类型',
+    event_type_client_meeting: '客户会议',
+    event_type_designer_meeting: '设计师会议',
+    event_type_team_meeting: '团队会议',
+    event_type_quote_request: '报价请求',
+    event_type_inspection: '验收',
+    event_type_other: '其他',
+    event_title_en: '标题(英文)',
+    event_title_zh: '标题(中文)',
+    event_start: '开始时间',
+    event_end: '结束时间',
+    event_all_day: '全天',
+    event_location: '地点',
+    event_notes: '备注',
+    event_project: '关联项目(可选)',
+    event_participants: '参与人(不选=所有人可见)',
+    no_events_today: '当天没有事件。',
+    today: '今天',
+    event_added: '事件添加成功',
+    event_updated: '事件已更新',
+    event_deleted: '事件已删除',
+    prev_month: '‹ 上月',
+    next_month: '下月 ›',
+    month_names: '1月,2月,3月,4月,5月,6月,7月,8月,9月,10月,11月,12月',
+    dow_short: '一,二,三,四,五,六,日',
   }
 };
 
@@ -428,6 +633,9 @@ const state = {
   people: { subs: [], workers: [] },
   inbox: [],
   assignments: [],
+  events: [],
+  calendarView: 'month',
+  calendarDate: new Date(),
   toast: null,
 };
 
@@ -474,18 +682,27 @@ async function loadDataForRole() {
   if (!state.user) return;
   if (state.user.role === 'dispatcher') {
     state.tab = state.tab === 'inbox' ? 'projects' : state.tab;
-    const [projects, tasks, people] = await Promise.all([
+    const [projects, tasks, people, events] = await Promise.all([
       api('/api/projects'),
       api('/api/tasks'),
       api('/api/people'),
+      api('/api/events'),
     ]);
     state.projects = projects;
     state.tasks = tasks;
     state.people = people;
+    state.events = events;
     state.assignments = await api('/api/assignments');
   } else {
-    state.tab = 'inbox';
-    state.inbox = await api('/api/assignments/mine');
+    const [inbox, people, events] = await Promise.all([
+      api('/api/assignments/mine'),
+      api('/api/people'),
+      api('/api/events'),
+    ]);
+    state.inbox = inbox;
+    state.people = people;
+    state.events = events;
+    if (state.tab !== 'calendar') state.tab = 'inbox';
   }
 }
 
@@ -578,8 +795,8 @@ function header() {
 function tabs() {
   const isDispatcher = state.user.role === 'dispatcher';
   const tabList = isDispatcher
-    ? [['projects', t('tab_projects')], ['schedule', t('tab_schedule')], ['people', t('tab_people')], ['assign', t('tab_assign')], ['manage', t('tab_manage')]]
-    : [['inbox', t('tab_inbox')]];
+    ? [['projects', t('tab_projects')], ['schedule', t('tab_schedule')], ['calendar', t('tab_calendar')], ['people', t('tab_people')], ['assign', t('tab_assign')], ['sent', t('tab_sent')], ['manage', t('tab_manage')]]
+    : [['inbox', t('tab_inbox')], ['calendar', t('tab_calendar')]];
 
   const el = document.createElement('div');
   el.className = 'tabs';
@@ -979,26 +1196,28 @@ function inboxTab() {
   }
 
   state.inbox.forEach(a => {
-    const status = a.response || 'pending';
+    const isCancelled = a.status === 'cancelled';
+    const status = isCancelled ? 'cancelled' : (a.response || 'pending');
     const title = state.lang === 'zh' && a.title_zh ? a.title_zh : a.title_en;
     const project = state.lang === 'zh' && a.project_name_zh ? a.project_name_zh : a.project_name_en;
     const notes = state.lang === 'zh' && a.notes_zh ? a.notes_zh : a.notes_en;
 
     const item = document.createElement('div');
     item.className = `inbox-item ${status}`;
+    if (isCancelled) item.style.opacity = '0.6';
     item.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: start;">
         <div>
-          <div style="font-weight: 500; font-size: 15px;">${title}</div>
+          <div style="font-weight: 500; font-size: 15px; ${isCancelled ? 'text-decoration: line-through;' : ''}">${title}</div>
           <div class="muted">${project} · ${a.start_date} → ${a.due_date}</div>
         </div>
-        <span class="badge ${status === 'accepted' ? 'success' : status === 'declined' ? 'danger' : 'info'}">
-          ${t(status)}
+        <span class="badge ${isCancelled ? 'danger' : status === 'accepted' ? 'success' : status === 'declined' ? 'danger' : 'info'}">
+          ${isCancelled ? t('assignment_cancelled') : t(status)}
         </span>
       </div>
       ${notes ? `<div style="margin-top: 8px; font-size: 13px;">${notes}</div>` : ''}
       ${a.safety_notes ? `<div style="margin-top: 6px; font-size: 12px; color: var(--text-muted);">⚠ ${a.safety_notes}</div>` : ''}
-      ${status === 'pending' ? `
+      ${(status === 'pending' && !isCancelled) ? `
         <div style="display: flex; gap: 8px; margin-top: 12px;">
           <button class="btn btn-primary" data-respond="accepted" data-id="${a.id}">${t('accept')}</button>
           <button class="btn" data-respond="declined" data-id="${a.id}">${t('decline')}</button>
@@ -1040,8 +1259,10 @@ function render() {
   switch (state.tab) {
     case 'projects': body = projectsTab(); break;
     case 'schedule': body = scheduleTab(); break;
+    case 'calendar': body = calendarTab(); break;
     case 'people':   body = peopleTab(); break;
     case 'assign':   body = assignTab(); break;
+    case 'sent':     body = sentTab(); break;
     case 'manage':   body = manageTab(); break;
     case 'inbox':    body = inboxTab(); break;
     default: body = projectsTab();
@@ -1055,6 +1276,85 @@ function render() {
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 4000);
   }
+}
+
+// --------------------------- Sent assignments tab ------------------------
+function sentTab() {
+  const wrap = document.createElement('div');
+
+  if (state.assignments.length === 0) {
+    wrap.innerHTML = `<div class="card"><div class="muted" style="text-align: center; padding: 1rem;">${t('no_sent_assignments')}</div></div>`;
+    return wrap;
+  }
+
+  const list = document.createElement('div');
+  list.className = 'card';
+
+  state.assignments.forEach(a => {
+    const title = state.lang === 'zh' && a.title_zh ? a.title_zh : a.title_en;
+    const projectName = state.lang === 'zh' && a.project_name_zh ? a.project_name_zh : a.project_name_en;
+    const isCancelled = a.status === 'cancelled';
+    const pending = a.recipient_count - a.accepted_count - a.declined_count;
+
+    const row = document.createElement('div');
+    row.className = 'project-row';
+    if (isCancelled) row.style.opacity = '0.6';
+    row.innerHTML = `
+      <div style="flex: 1;">
+        <div style="font-weight: 500; font-size: 14px; ${isCancelled ? 'text-decoration: line-through;' : ''}">
+          ${title}
+          ${isCancelled ? `<span class="badge danger" style="margin-left: 8px;">${t('assignment_cancelled')}</span>` : ''}
+        </div>
+        <div class="muted">${projectName || ''} · ${a.start_date} → ${a.due_date}</div>
+        <div class="muted" style="font-size: 11px; margin-top: 4px;">
+          ${a.recipient_count} ${t('recipients_count')} ·
+          <span style="color: var(--success-text);">${a.accepted_count} ${t('accepted_count')}</span> ·
+          <span style="color: var(--danger-text);">${a.declined_count} ${t('declined_count')}</span>
+          ${pending > 0 ? ` · <span style="color: var(--info-text);">${pending} ${t('pending')}</span>` : ''}
+        </div>
+        ${!isCancelled ? `
+          <div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
+            <button class="btn" data-cancel-assignment="${a.id}" style="padding: 4px 10px; font-size: 11px;">${t('cancel_assignment')}</button>
+            <button class="btn" data-delete-assignment="${a.id}" style="padding: 4px 10px; font-size: 11px;">${t('delete_assignment')}</button>
+          </div>
+        ` : `
+          <div style="display: flex; gap: 6px; margin-top: 8px;">
+            <button class="btn" data-delete-assignment="${a.id}" style="padding: 4px 10px; font-size: 11px;">${t('delete_assignment')}</button>
+          </div>
+        `}
+      </div>
+    `;
+    list.appendChild(row);
+  });
+
+  wrap.appendChild(list);
+
+  setTimeout(() => {
+    wrap.querySelectorAll('[data-cancel-assignment]').forEach(b => {
+      b.onclick = async () => {
+        if (!confirm(t('confirm_cancel_assignment'))) return;
+        try {
+          const result = await api(`/api/assignments/${b.dataset.cancelAssignment}/cancel`, { method: 'POST' });
+          showToast(t('assignment_cancelled_ok'));
+          await loadDataForRole();
+          render();
+        } catch (e) { alert(e.message); }
+      };
+    });
+    wrap.querySelectorAll('[data-delete-assignment]').forEach(b => {
+      b.onclick = async () => {
+        if (!confirm(t('confirm_delete_assignment'))) return;
+        try {
+          await api(`/api/assignments/${b.dataset.deleteAssignment}`, { method: 'DELETE' });
+          showToast(t('assignment_deleted_ok'));
+          await loadDataForRole();
+          render();
+        } catch (e) { alert(e.message); }
+      };
+    });
+  }, 0);
+
+  return wrap;
 }
 
 // --------------------------- Manage people tab (NEW) ---------------------
@@ -1201,7 +1501,7 @@ function openUserDialog(existing) {
         <option value="zh">中文</option>
       </select>
       <label class="field" style="margin-top: 12px;">${t('trade_label') || 'Trade'}</label>
-      <input id="u-trade" type="text" value="${existing?.trade || ''}" placeholder="e.g. Carpentry, Drywall" />
+      <input id="u-trade" type="text" list="trade-options" value="${existing?.trade || ''}" placeholder="e.g. Carpentry, Drywall" />
       ${!isEdit ? `
         <label class="field" style="margin-top: 12px;">${t('initial_pw')} *</label>
         <input id="u-pw" type="text" value="delux2026" />
@@ -1251,7 +1551,25 @@ function openSubDialog() {
       <label class="field">${t('company_name')} *</label>
       <input id="s-name" type="text" />
       <label class="field" style="margin-top: 12px;">${t('trade_label')} *</label>
-      <input id="s-trade" type="text" placeholder="Electrical, Plumbing, HVAC..." />
+      <input id="s-trade" type="text" list="trade-options" placeholder="General Construction, Electrical, Plumbing..." />
+      <datalist id="trade-options">
+        <option value="General Construction"></option>
+        <option value="Electrical"></option>
+        <option value="Plumbing"></option>
+        <option value="HVAC"></option>
+        <option value="Framing"></option>
+        <option value="Concrete"></option>
+        <option value="Drywall"></option>
+        <option value="Painting"></option>
+        <option value="Roofing"></option>
+        <option value="Flooring"></option>
+        <option value="Tiling"></option>
+        <option value="Masonry"></option>
+        <option value="Windows"></option>
+        <option value="Landscaping"></option>
+        <option value="Excavation"></option>
+        <option value="Demolition"></option>
+      </datalist>
       <div style="display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end;">
         <button class="btn" id="s-cancel">${t('cancel')}</button>
         <button class="btn btn-primary" id="s-save">${t('save')}</button>
@@ -1319,7 +1637,19 @@ function openProjectDialog(existing) {
       <label class="field" style="margin-top: 12px;">${t('project_address')}</label>
       <input id="p-address" type="text" value="${existing?.address || ''}" />
       <label class="field" style="margin-top: 12px;">${t('project_type')}</label>
-      <input id="p-type" type="text" value="${existing?.type || ''}" placeholder="Residential, Commercial, Renovation..." />
+      <input id="p-type" type="text" list="project-type-options" value="${existing?.type || ''}" placeholder="General Construction, Residential, Commercial..." />
+      <datalist id="project-type-options">
+        <option value="General Construction"></option>
+        <option value="Residential"></option>
+        <option value="Commercial"></option>
+        <option value="Renovation"></option>
+        <option value="Custom Home"></option>
+        <option value="Multi-Family"></option>
+        <option value="Interior Fit-Out"></option>
+        <option value="New Construction"></option>
+        <option value="Addition"></option>
+        <option value="Kitchen & Bath"></option>
+      </datalist>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
         <div>
           <label class="field">${t('start')} *</label>
@@ -1388,7 +1718,30 @@ function openTaskDialog(projectId, existing) {
       <label class="field" style="margin-top: 12px;">${t('task_name_zh')}</label>
       <input id="tk-name-zh" type="text" value="${existing?.title_zh || ''}" placeholder="例如:三楼石膏板" />
       <label class="field" style="margin-top: 12px;">${t('task_trade')}</label>
-      <input id="tk-trade" type="text" value="${existing?.trade || ''}" placeholder="Drywall, Electrical, Plumbing..." />
+      <select id="tk-trade-select">
+        <option value="">— ${t('select_trade')} —</option>
+        <option value="Framing">${t('trade_framing')}</option>
+        <option value="Concrete">${t('trade_concrete')}</option>
+        <option value="Masonry">${t('trade_masonry')}</option>
+        <option value="Roofing">${t('trade_roofing')}</option>
+        <option value="Drywall">${t('trade_drywall')}</option>
+        <option value="Painting">${t('trade_painting')}</option>
+        <option value="Electrical">${t('trade_electrical')}</option>
+        <option value="Plumbing">${t('trade_plumbing')}</option>
+        <option value="HVAC">${t('trade_hvac')}</option>
+        <option value="Flooring">${t('trade_flooring')}</option>
+        <option value="Tile">${t('trade_tile')}</option>
+        <option value="Windows">${t('trade_windows')}</option>
+        <option value="Cabinetry">${t('trade_cabinetry')}</option>
+        <option value="Insulation">${t('trade_insulation')}</option>
+        <option value="Demolition">${t('trade_demolition')}</option>
+        <option value="Excavation">${t('trade_excavation')}</option>
+        <option value="Landscaping">${t('trade_landscaping')}</option>
+        <option value="Cleanup">${t('trade_cleanup')}</option>
+        <option value="General Labor">${t('trade_general')}</option>
+        <option value="__other__">${t('trade_other')}...</option>
+      </select>
+      <input id="tk-trade-other" type="text" value="" placeholder="${t('trade_custom_placeholder')}" style="display: none; margin-top: 6px;" />
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
         <div>
           <label class="field">${t('start')} *</label>
@@ -1414,13 +1767,41 @@ function openTaskDialog(projectId, existing) {
       </div>
     `;
     if (isEdit) m.querySelector('#tk-status').value = existing.status || 'scheduled';
+
+    // Pre-populate trade dropdown (or show custom field if existing value not in list)
+    const tradeSelect = m.querySelector('#tk-trade-select');
+    const tradeOther = m.querySelector('#tk-trade-other');
+    if (existing?.trade) {
+      const matchingOption = Array.from(tradeSelect.options).find(o => o.value === existing.trade);
+      if (matchingOption) {
+        tradeSelect.value = existing.trade;
+      } else {
+        tradeSelect.value = '__other__';
+        tradeOther.style.display = 'block';
+        tradeOther.value = existing.trade;
+      }
+    }
+    // Show/hide custom field when "Other" chosen
+    tradeSelect.addEventListener('change', () => {
+      if (tradeSelect.value === '__other__') {
+        tradeOther.style.display = 'block';
+        tradeOther.focus();
+      } else {
+        tradeOther.style.display = 'none';
+      }
+    });
+
     m.querySelector('#tk-cancel').onclick = close;
     m.querySelector('#tk-save').onclick = async () => {
+      let tradeValue = tradeSelect.value;
+      if (tradeValue === '__other__') tradeValue = tradeOther.value.trim();
+      if (tradeValue === '') tradeValue = null;
+
       const body = {
         project_id: projectId,
         title_en: m.querySelector('#tk-name-en').value.trim(),
         title_zh: m.querySelector('#tk-name-zh').value.trim() || null,
-        trade: m.querySelector('#tk-trade').value.trim() || null,
+        trade: tradeValue,
         start_date: m.querySelector('#tk-start').value,
         due_date: m.querySelector('#tk-due').value,
       };
@@ -1503,6 +1884,399 @@ function openProjectTasksDialog(projectId) {
         } catch (e) { alert(e.message); }
       };
     });
+  });
+}
+
+// --------------------------- Calendar tab --------------------------------
+function calendarTab() {
+  const wrap = document.createElement('div');
+  const isDispatcher = state.user.role === 'dispatcher';
+  const view = state.calendarView || 'month';
+
+  const monthNames = t('month_names').split(',');
+  const dowShort = t('dow_short').split(',');
+
+  const cur = state.calendarDate instanceof Date ? state.calendarDate : new Date();
+  const year = cur.getFullYear();
+  const month = cur.getMonth();
+  const titleText = state.lang === 'zh' ? `${year}年 ${monthNames[month]}` : `${monthNames[month]} ${year}`;
+
+  const toolbar = document.createElement('div');
+  toolbar.className = 'cal-toolbar';
+  toolbar.innerHTML = `
+    <button class="btn" id="cal-prev">${t('prev_month')}</button>
+    <button class="btn" id="cal-today">${t('today')}</button>
+    <button class="btn" id="cal-next">${t('next_month')}</button>
+    <div class="title-wrap">${titleText}</div>
+    <div class="cal-view-toggle">
+      <button data-view="month" class="${view==='month'?'active':''}">${t('view_month')}</button>
+      <button data-view="list" class="${view==='list'?'active':''}">${t('view_list')}</button>
+    </div>
+    ${isDispatcher ? `<button class="btn btn-primary" id="cal-add">+ ${t('add_event')}</button>` : ''}
+  `;
+  wrap.appendChild(toolbar);
+
+  const body = document.createElement('div');
+  if (view === 'month') {
+    body.appendChild(renderMonthView(year, month, dowShort));
+  } else {
+    body.appendChild(renderListView());
+  }
+  wrap.appendChild(body);
+
+  setTimeout(() => {
+    toolbar.querySelector('#cal-prev').onclick = () => {
+      state.calendarDate = new Date(year, month - 1, 1);
+      render();
+    };
+    toolbar.querySelector('#cal-next').onclick = () => {
+      state.calendarDate = new Date(year, month + 1, 1);
+      render();
+    };
+    toolbar.querySelector('#cal-today').onclick = () => {
+      state.calendarDate = new Date();
+      render();
+    };
+    toolbar.querySelectorAll('.cal-view-toggle button').forEach(b => {
+      b.onclick = () => { state.calendarView = b.dataset.view; render(); };
+    });
+    const addBtn = toolbar.querySelector('#cal-add');
+    if (addBtn) addBtn.onclick = () => openEventDialog(null, null);
+  }, 0);
+
+  return wrap;
+}
+
+function eventsOnDay(dateObj) {
+  const y = dateObj.getFullYear();
+  const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const d = String(dateObj.getDate()).padStart(2, '0');
+  const target = `${y}-${m}-${d}`;
+  return (state.events || []).filter(ev => (ev.start_at || '').startsWith(target));
+}
+
+function renderMonthView(year, month, dowShort) {
+  const container = document.createElement('div');
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'cal-header-row';
+  header.innerHTML = dowShort.map(d => `<div class="cal-dow">${d}</div>`).join('');
+  container.appendChild(header);
+
+  // Grid
+  const grid = document.createElement('div');
+  grid.className = 'cal-grid';
+
+  const firstOfMonth = new Date(year, month, 1);
+  // Monday=0 ... Sunday=6
+  let startDow = firstOfMonth.getDay() - 1;
+  if (startDow < 0) startDow = 6;
+  const gridStart = new Date(year, month, 1 - startDow);
+
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(gridStart);
+    d.setDate(gridStart.getDate() + i);
+    const isOther = d.getMonth() !== month;
+    const dStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const isToday = dStr === todayStr;
+
+    const cell = document.createElement('div');
+    cell.className = `cal-day${isOther ? ' other-month' : ''}${isToday ? ' today' : ''}`;
+    cell.dataset.date = dStr;
+
+    const dayNum = document.createElement('div');
+    dayNum.className = 'day-num';
+    dayNum.textContent = d.getDate();
+    cell.appendChild(dayNum);
+
+    const dayEvents = eventsOnDay(d);
+    const maxShow = 3;
+    dayEvents.slice(0, maxShow).forEach(ev => {
+      const pill = document.createElement('div');
+      pill.className = `cal-event ${ev.type}`;
+      const title = (state.lang === 'zh' && ev.title_zh) ? ev.title_zh : ev.title_en;
+      const timeStr = ev.all_day ? '' : formatTimeShort(ev.start_at);
+      pill.textContent = timeStr ? `${timeStr} ${title}` : title;
+      pill.onclick = (e) => {
+        e.stopPropagation();
+        openEventDetail(ev);
+      };
+      cell.appendChild(pill);
+    });
+    if (dayEvents.length > maxShow) {
+      const more = document.createElement('div');
+      more.className = 'cal-event-more';
+      more.textContent = `+${dayEvents.length - maxShow} more`;
+      cell.appendChild(more);
+    }
+
+    cell.onclick = () => openDayDetail(d);
+    grid.appendChild(cell);
+  }
+  container.appendChild(grid);
+  return container;
+}
+
+function renderListView() {
+  const container = document.createElement('div');
+  const events = (state.events || []).slice().sort((a, b) => (a.start_at || '').localeCompare(b.start_at || ''));
+  if (events.length === 0) {
+    container.innerHTML = `<div class="card">${t('no_events_today')}</div>`;
+    return container;
+  }
+  const monthNames = t('month_names').split(',');
+  events.forEach(ev => {
+    const d = new Date(ev.start_at);
+    const title = (state.lang === 'zh' && ev.title_zh) ? ev.title_zh : ev.title_en;
+    const project = (state.lang === 'zh' && ev.project_name_zh) ? ev.project_name_zh : ev.project_name_en;
+    const timeStr = ev.all_day ? t('event_all_day') : formatTimeShort(ev.start_at);
+
+    const row = document.createElement('div');
+    row.className = `cal-list-item ${ev.type}`;
+    row.innerHTML = `
+      <div class="cal-list-date">
+        <div class="cal-list-day">${d.getDate()}</div>
+        <div class="cal-list-month">${monthNames[d.getMonth()].substring(0, 3)}</div>
+      </div>
+      <div class="cal-list-content">
+        <div class="cal-list-title">${title}</div>
+        <div class="cal-list-meta">
+          ${t('event_type_' + ev.type)} · ${timeStr}
+          ${ev.location ? ' · ' + ev.location : ''}
+          ${project ? ' · ' + project : ''}
+        </div>
+      </div>
+    `;
+    row.onclick = () => openEventDetail(ev);
+    container.appendChild(row);
+  });
+  return container;
+}
+
+function formatTimeShort(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const h = d.getHours();
+  const m = String(d.getMinutes()).padStart(2, '0');
+  if (state.lang === 'zh') {
+    return `${h}:${m}`;
+  }
+  const ampm = h >= 12 ? 'pm' : 'am';
+  const h12 = h % 12 || 12;
+  return m === '00' ? `${h12}${ampm}` : `${h12}:${m}${ampm}`;
+}
+
+function openDayDetail(dateObj) {
+  const events = eventsOnDay(dateObj);
+  const isDispatcher = state.user.role === 'dispatcher';
+  const dStr = dateObj.toISOString().slice(0, 10);
+  openModal((m, close) => {
+    const monthNames = t('month_names').split(',');
+    const titleText = state.lang === 'zh'
+      ? `${dateObj.getFullYear()}年${monthNames[dateObj.getMonth()]}${dateObj.getDate()}日`
+      : `${monthNames[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`;
+
+    m.innerHTML = `<h3 style="margin: 0 0 12px;">${titleText}</h3><div id="day-events"></div>`;
+    const list = m.querySelector('#day-events');
+    if (events.length === 0) {
+      list.innerHTML = `<div class="muted" style="text-align: center; padding: 1rem;">${t('no_events_today')}</div>`;
+    } else {
+      events.forEach(ev => {
+        const title = (state.lang === 'zh' && ev.title_zh) ? ev.title_zh : ev.title_en;
+        const item = document.createElement('div');
+        item.className = `cal-list-item ${ev.type}`;
+        item.style.margin = '0 0 6px 0';
+        item.innerHTML = `
+          <div class="cal-list-content">
+            <div class="cal-list-title">${title}</div>
+            <div class="cal-list-meta">
+              ${t('event_type_' + ev.type)} · ${ev.all_day ? t('event_all_day') : formatTimeShort(ev.start_at)}
+              ${ev.location ? ' · ' + ev.location : ''}
+            </div>
+          </div>
+        `;
+        item.onclick = () => { close(); openEventDetail(ev); };
+        list.appendChild(item);
+      });
+    }
+    const actions = document.createElement('div');
+    actions.style = 'display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end;';
+    actions.innerHTML = `
+      ${isDispatcher ? `<button class="btn btn-primary" id="day-add">+ ${t('add_event')}</button>` : ''}
+      <button class="btn" id="day-close">${t('cancel')}</button>
+    `;
+    m.appendChild(actions);
+    m.querySelector('#day-close').onclick = close;
+    const addBtn = m.querySelector('#day-add');
+    if (addBtn) addBtn.onclick = () => { close(); openEventDialog(null, dStr); };
+  });
+}
+
+function openEventDetail(ev) {
+  const isDispatcher = state.user.role === 'dispatcher';
+  openModal((m, close) => {
+    const title = (state.lang === 'zh' && ev.title_zh) ? ev.title_zh : ev.title_en;
+    const project = (state.lang === 'zh' && ev.project_name_zh) ? ev.project_name_zh : ev.project_name_en;
+    const notes = (state.lang === 'zh' && ev.notes_zh) ? ev.notes_zh : ev.notes_en;
+    const startD = new Date(ev.start_at);
+
+    const partsHtml = (ev.participants || []).map(p => {
+      const n = (state.lang === 'zh' && p.name_zh) ? p.name_zh : p.name_en;
+      return `<span class="badge info" style="margin: 0 4px 4px 0;">${n}</span>`;
+    }).join('');
+
+    m.innerHTML = `
+      <h3 style="margin: 0 0 4px;">${title}</h3>
+      <div class="muted" style="font-size: 12px; margin-bottom: 14px;">
+        <span class="badge ${ev.type === 'inspection' ? 'danger' : ev.type === 'client_meeting' ? 'success' : 'info'}">${t('event_type_' + ev.type)}</span>
+      </div>
+      <div style="display: grid; gap: 8px; font-size: 13px;">
+        <div><strong>${t('event_start')}:</strong> ${startD.toLocaleString()}</div>
+        ${ev.end_at ? `<div><strong>${t('event_end')}:</strong> ${new Date(ev.end_at).toLocaleString()}</div>` : ''}
+        ${ev.location ? `<div><strong>${t('event_location')}:</strong> ${ev.location}</div>` : ''}
+        ${project ? `<div><strong>${t('event_project')}:</strong> ${project}</div>` : ''}
+        ${notes ? `<div><strong>${t('event_notes')}:</strong><br>${notes.replace(/\n/g, '<br>')}</div>` : ''}
+        ${partsHtml ? `<div><strong>${t('event_participants').split('(')[0]}:</strong><br>${partsHtml}</div>` : ''}
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end;">
+        ${isDispatcher ? `
+          <button class="btn" id="ev-delete" style="color: var(--danger-text);">${t('delete_event')}</button>
+          <button class="btn" id="ev-edit">${t('edit_event')}</button>
+        ` : ''}
+        <button class="btn" id="ev-close">${t('cancel')}</button>
+      </div>
+    `;
+    m.querySelector('#ev-close').onclick = close;
+    const editBtn = m.querySelector('#ev-edit');
+    if (editBtn) editBtn.onclick = () => { close(); openEventDialog(ev, null); };
+    const delBtn = m.querySelector('#ev-delete');
+    if (delBtn) delBtn.onclick = async () => {
+      if (!confirm(t('confirm_delete_event'))) return;
+      try {
+        await api(`/api/events/${ev.id}`, { method: 'DELETE' });
+        showToast(t('event_deleted'));
+        close();
+        await loadDataForRole();
+        render();
+      } catch (e) { alert(e.message); }
+    };
+  });
+}
+
+function openEventDialog(existing, dateHint) {
+  openModal((m, close) => {
+    const isEdit = !!existing;
+    const now = new Date();
+    const defStart = existing?.start_at
+      ? existing.start_at.slice(0, 16)
+      : (dateHint ? `${dateHint}T09:00` : `${now.toISOString().slice(0, 10)}T09:00`);
+    const defEnd = existing?.end_at ? existing.end_at.slice(0, 16) : '';
+
+    const projectOptions = ['<option value="">—</option>']
+      .concat(state.projects.map(p => {
+        const name = (state.lang === 'zh' && p.name_zh) ? p.name_zh : p.name_en;
+        return `<option value="${p.id}">${name}</option>`;
+      })).join('');
+
+    // Candidates for participants: all users
+    const userOpts = state.people.workers.map(u => {
+      const name = (state.lang === 'zh' && u.name_zh) ? u.name_zh : u.name_en;
+      const checked = (existing?.participants || []).some(p => p.user_id === u.id) ? 'checked' : '';
+      return `<label style="display: inline-flex; align-items: center; gap: 6px; margin: 3px 10px 3px 0; font-size: 12px;">
+        <input type="checkbox" name="ev-part" value="${u.id}" ${checked}/>
+        ${name}
+      </label>`;
+    }).join('');
+
+    m.style.maxWidth = '520px';
+    m.innerHTML = `
+      <h3 style="margin: 0 0 16px;">${isEdit ? t('edit_event') : t('add_event')}</h3>
+      <label class="field">${t('event_type')} *</label>
+      <select id="ev-type">
+        <option value="client_meeting">${t('event_type_client_meeting')}</option>
+        <option value="designer_meeting">${t('event_type_designer_meeting')}</option>
+        <option value="team_meeting">${t('event_type_team_meeting')}</option>
+        <option value="quote_request">${t('event_type_quote_request')}</option>
+        <option value="inspection">${t('event_type_inspection')}</option>
+        <option value="other">${t('event_type_other')}</option>
+      </select>
+      <label class="field" style="margin-top: 12px;">${t('event_title_en')} *</label>
+      <input id="ev-title-en" type="text" value="${existing?.title_en || ''}" />
+      <label class="field" style="margin-top: 12px;">${t('event_title_zh')}</label>
+      <input id="ev-title-zh" type="text" value="${existing?.title_zh || ''}" />
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+        <div>
+          <label class="field">${t('event_start')} *</label>
+          <input id="ev-start" type="datetime-local" value="${defStart}" />
+        </div>
+        <div>
+          <label class="field">${t('event_end')}</label>
+          <input id="ev-end" type="datetime-local" value="${defEnd}" />
+        </div>
+      </div>
+      <label style="display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px;">
+        <input type="checkbox" id="ev-allday" ${existing?.all_day ? 'checked' : ''} />
+        ${t('event_all_day')}
+      </label>
+      <label class="field" style="margin-top: 12px;">${t('event_location')}</label>
+      <input id="ev-location" type="text" value="${existing?.location || ''}" />
+      <label class="field" style="margin-top: 12px;">${t('event_project')}</label>
+      <select id="ev-project">${projectOptions}</select>
+      <label class="field" style="margin-top: 12px;">${t('event_notes')}</label>
+      <textarea id="ev-notes" rows="3">${existing?.notes_en || ''}</textarea>
+      <label class="field" style="margin-top: 12px;">${t('event_participants')}</label>
+      <div style="max-height: 140px; overflow-y: auto; padding: 6px; background: var(--background); border-radius: 6px;">
+        ${userOpts || '<div class="muted" style="font-size: 11px;">No users yet.</div>'}
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end;">
+        <button class="btn" id="ev-cancel">${t('cancel')}</button>
+        <button class="btn btn-primary" id="ev-save">${t('save')}</button>
+      </div>
+    `;
+    if (existing) {
+      m.querySelector('#ev-type').value = existing.type;
+      if (existing.project_id) m.querySelector('#ev-project').value = String(existing.project_id);
+    }
+    m.querySelector('#ev-cancel').onclick = close;
+    m.querySelector('#ev-save').onclick = async () => {
+      const startVal = m.querySelector('#ev-start').value;
+      const endVal = m.querySelector('#ev-end').value;
+      if (!startVal) { alert(t('event_start') + ' required'); return; }
+      const titleEn = m.querySelector('#ev-title-en').value.trim();
+      if (!titleEn) { alert(t('event_title_en') + ' required'); return; }
+
+      const participant_ids = Array.from(m.querySelectorAll('input[name="ev-part"]:checked')).map(i => Number(i.value));
+      const projVal = m.querySelector('#ev-project').value;
+
+      const body = {
+        type: m.querySelector('#ev-type').value,
+        title_en: titleEn,
+        title_zh: m.querySelector('#ev-title-zh').value.trim() || null,
+        start_at: startVal,
+        end_at: endVal || null,
+        all_day: m.querySelector('#ev-allday').checked ? 1 : 0,
+        location: m.querySelector('#ev-location').value.trim() || null,
+        notes_en: m.querySelector('#ev-notes').value.trim() || null,
+        project_id: projVal ? Number(projVal) : null,
+        participant_ids,
+      };
+      try {
+        if (isEdit) {
+          await api(`/api/events/${existing.id}`, { method: 'PUT', body });
+          showToast(t('event_updated'));
+        } else {
+          await api('/api/events', { method: 'POST', body });
+          showToast(t('event_added'));
+        }
+        close();
+        await loadDataForRole();
+        render();
+      } catch (e) { alert(e.message); }
+    };
   });
 }
 

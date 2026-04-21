@@ -105,4 +105,65 @@ function wechatBody(assignment, lang) {
   ].filter(Boolean).join('\n');
 }
 
-module.exports = { emailSubject, emailBody, smsBody, wechatBody };
+// ---- Cancellation templates ----
+
+function cancelEmailSubject(assignment, lang) {
+  if (lang === 'zh') return `【德乐】任务已取消:${assignment.title_zh || assignment.title_en}`;
+  return `[De Lux] Assignment CANCELLED: ${assignment.title_en}`;
+}
+
+function cancelEmailBody(assignment, recipient, lang) {
+  const name = lang === 'zh' ? (recipient.name_zh || recipient.name_en) : recipient.name_en;
+  const title = lang === 'zh' ? (assignment.title_zh || assignment.title_en) : assignment.title_en;
+  const project = lang === 'zh' ? (assignment.project_name_zh || assignment.project_name_en) : assignment.project_name_en;
+
+  if (lang === 'zh') {
+    return [
+      `${name}你好,`,
+      ``,
+      `⚠️ 以下任务已被取消,请不要再进行:`,
+      ``,
+      `— 项目:${project}`,
+      `— 任务:${title}`,
+      `— 原开始日期:${fmtDate(assignment.start_date, 'zh')}`,
+      `— 原截止日期:${fmtDate(assignment.due_date, 'zh')}`,
+      `— 取消人:${assignment.canceller_name || assignment.assigner_name}`,
+      ``,
+      `如有疑问请直接联系经理。`,
+      ``,
+      `— 德乐建筑`
+    ].filter(Boolean).join('\n');
+  }
+  return [
+    `Hi ${name},`,
+    ``,
+    `⚠️ The following assignment has been CANCELLED. Please do not proceed:`,
+    ``,
+    `— Project: ${project}`,
+    `— Task: ${title}`,
+    `— Was scheduled: ${fmtDate(assignment.start_date, 'en')} → ${fmtDate(assignment.due_date, 'en')}`,
+    `— Cancelled by: ${assignment.canceller_name || assignment.assigner_name}`,
+    ``,
+    `Please contact the dispatcher if you have questions.`,
+    ``,
+    `— De Lux Construction`
+  ].filter(Boolean).join('\n');
+}
+
+function cancelSmsBody(assignment, lang) {
+  const title = lang === 'zh' ? (assignment.title_zh || assignment.title_en) : assignment.title_en;
+  const project = lang === 'zh' ? (assignment.project_name_zh || assignment.project_name_en) : assignment.project_name_en;
+  if (lang === 'zh') {
+    return `【德乐】⚠️ 任务已取消:${title}(项目:${project})。请勿进行。如有疑问联系经理。`;
+  }
+  return `[De Lux] ⚠️ CANCELLED: ${title} (${project}). Do not proceed. Contact dispatcher for questions.`;
+}
+
+function cancelWechatBody(assignment, lang) {
+  return cancelSmsBody(assignment, lang);
+}
+
+module.exports = {
+  emailSubject, emailBody, smsBody, wechatBody,
+  cancelEmailSubject, cancelEmailBody, cancelSmsBody, cancelWechatBody
+};

@@ -2,7 +2,7 @@
 const express = require('express');
 const db = require('../db');
 const { requireAuth, requireDispatcher } = require('./auth');
-const { dispatchAssignment } = require('../services/notify');
+const { dispatchAssignment, dispatchCancellation } = require('../services/notify');
 
 const router = express.Router();
 
@@ -81,6 +81,75 @@ router.get('/assignments', requireAuth, requireDispatcher, (req, res) => {
     LIMIT 100
   `).all();
   res.json(rows);
+});
+
+// Edit an assignment (only while still active — changes don't notify anyone by default)
+router.put('/assignments/:id', requireAuth, requireDispatcher, (req, res) => {
+  const { id } = req.params;
+  const { title_en, title_zh, notes_en, notes_zh, site_access, safety_notes, start_date, due_date } = req.body;
+
+  const existing = db.prepare('SELECT * FROM assignments WHERE id = ?').get(Number(id));
+  if (!existing) return res.status(404).json({ error: 'assignment not found' });
+  if (existing.status === 'cancelled') return res.status(400).json({ error: 'cannot edit cancelled assignment' });
+
+  try {
+    db.prepare(`
+      UPDATE assignments SET
+        title_en = COALESCE(?, title_en),
+        title_zh = COALESCE(?, title_zh),
+        notes_en = COALESCE(?, notes_en),
+        notes_zh = COALESCE(?, notes_zh),
+        site_access = COALESCE(?, site_access),
+        safety_notes = COALESCE(?, safety_notes),
+        start_date = COALESCE(?, start_date),
+        due_date = COALESCE(?, due_date)
+      WHERE id = ?
+    `).run(
+      title_en ?? null, title_zh ?? null, notes_en ?? null, notes_zh ?? null,
+      site_access ?? null, safety_notes ?? null, start_date ?? null, due_date ?? null,
+      Number(id)
+    );
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: String(e.message || e) });
+  }
+});
+
+// Hard delete an assignment (removes it completely — for mistakes)
+router.delete('/assignments/:id', requireAuth, requireDispatcher, (req, res) => {
+  const { id } = req.params;
+  const aid = Number(id);
+  try {
+    db.exec('BEGIN');
+    db.prepare('DELETE FROM message_log WHERE assignment_id = ?').run(aid);
+    db.prepare('DELETE FROM assignment_recipients WHERE assignment_id = ?').run(aid);
+    const result = db.prepare('DELETE FROM assignments WHERE id = ?').run(aid);
+    db.exec('COMMIT');
+    if (result.changes === 0) return res.status(404).json({ error: 'assignment not found' });
+    res.json({ ok: true });
+  } catch (e) {
+    try { db.exec('ROLLBACK'); } catch {}
+    res.status(500).json({ error: String(e.message || e) });
+  }
+});
+
+// Cancel an assignment (soft — marks cancelled and sends cancellation notice to recipients)
+router.post('/assignments/:id/cancel', requireAuth, requireDispatcher, async (req, res) => {
+  const { id } = req.params;
+  const existing = db.prepare('SELECT * FROM assignments WHERE id = ?').get(Number(id));
+  if (!existing) return res.status(404).json({ error: 'assignment not found' });
+  if (existing.status === 'cancelled') return res.status(400).json({ error: 'already cancelled' });
+
+  db.prepare("UPDATE assignments SET status = 'cancelled', cancelled_at = CURRENT_TIMESTAMP WHERE id = ?")
+    .run(Number(id));
+
+  // Dispatch cancellation notifications
+  try {
+    const results = await dispatchCancellation(Number(id), req.session.userId);
+    res.json({ ok: true, notified: results });
+  } catch (e) {
+    res.json({ ok: true, notified: [], notify_error: String(e.message || e) });
+  }
 });
 
 router.post('/assignments/:id/respond', requireAuth, (req, res) => {

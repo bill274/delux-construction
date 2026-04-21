@@ -108,4 +108,66 @@ async function dispatchAssignment(assignmentId) {
   return results;
 }
 
-module.exports = { dispatchAssignment };
+async function dispatchCancellation(assignmentId, cancellerId) {
+  const assignment = db.prepare(`
+    SELECT a.*, t.project_id,
+           p.name_en AS project_name_en, p.name_zh AS project_name_zh,
+           u.name_en AS assigner_name,
+           c.name_en AS canceller_name
+    FROM assignments a
+    JOIN tasks t ON t.id = a.task_id
+    JOIN projects p ON p.id = t.project_id
+    JOIN users u ON u.id = a.created_by
+    LEFT JOIN users c ON c.id = ?
+    WHERE a.id = ?
+  `).get(cancellerId, assignmentId);
+
+  if (!assignment) throw new Error(`Assignment ${assignmentId} not found`);
+
+  const recipients = db.prepare(
+    'SELECT * FROM assignment_recipients WHERE assignment_id = ?'
+  ).all(assignmentId);
+
+  const logInsert = db.prepare(`
+    INSERT INTO message_log (assignment_id, recipient_id, channel, lang, status, error)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `);
+
+  const results = [];
+
+  for (const r of recipients) {
+    const targets = resolveTargets(r);
+    for (const user of targets) {
+      const lang = user.preferred_lang || 'en';
+      const channels = [];
+      if (r.delivery_email && user.email) channels.push('email');
+      if (r.delivery_sms && user.phone) channels.push('sms');
+      if (r.delivery_wechat && user.wechat_id) channels.push('wechat');
+
+      for (const ch of channels) {
+        try {
+          if (ch === 'email') {
+            await sendEmail({
+              to: user.email,
+              subject: tpl.cancelEmailSubject(assignment, lang),
+              body: tpl.cancelEmailBody(assignment, user, lang)
+            });
+          } else if (ch === 'sms') {
+            await sendSms({ to: user.phone, body: tpl.cancelSmsBody(assignment, lang) });
+          } else if (ch === 'wechat') {
+            await sendWechat({ to: user.wechat_id, body: tpl.cancelWechatBody(assignment, lang) });
+          }
+          logInsert.run(assignmentId, r.id, ch, lang, 'cancel_sent', null);
+          results.push({ user: user.name_en, channel: ch, lang, ok: true });
+        } catch (err) {
+          logInsert.run(assignmentId, r.id, ch, lang, 'cancel_failed', String(err));
+          results.push({ user: user.name_en, channel: ch, lang, ok: false, error: String(err) });
+        }
+      }
+    }
+  }
+
+  return results;
+}
+
+module.exports = { dispatchAssignment, dispatchCancellation };
